@@ -70,19 +70,20 @@ The model is relatively precise when it flags a booking as likely to be canceled
 
 ## Key Predictors
 
-The strongest cancellation-risk drivers included:
+The feature-importance results are also consistent with business intuition: cancellation behavior is shaped by commitment signals, booking timing, customer history, and sales-channel patterns.
 
-- deposit type,
-- total special requests,
-- lead time,
-- previous cancellations,
-- required parking spaces,
-- market segment,
-- booking changes,
-- customer type,
-- distribution channel.
-
-These features suggest that cancellation behavior is shaped by customer commitment signals, booking timing, past behavior, and sales channel patterns.
+| Top driver | Business interpretation |
+|---|---|
+| Deposit type: Non Refund | Deposit policy is strongly linked to cancellation behavior because non-refundable bookings usually represent a stronger financial commitment. |
+| Total special requests | Guests with special requests may show stronger booking intent because they are already planning specific details of the stay. |
+| Lead time | Bookings made far in advance tend to carry different cancellation risk because plans can change before the stay date. |
+| Previous cancellations | Past customer behavior is predictive because guests with prior cancellations may be more likely to cancel again. |
+| Required parking spaces | Parking requests can signal stronger commitment or a specific travel context, especially for guests arriving by car. |
+| Market segment: Online TA | Online travel agency bookings may follow different cancellation patterns because customers can compare and change options more easily. |
+| Booking changes | Modified bookings may indicate uncertainty, but they can also show active planning, making this a useful behavioral signal. |
+| Customer type: Transient | Individual or short-term bookings behave differently from group, contract, or repeat customer bookings. |
+| Market segment: Groups | Group bookings have different cancellation dynamics because they often depend on coordinated plans and group-level decisions. |
+| Distribution channel: TA/TO | Travel agency and tour operator channels can behave differently because booking policies, customer expectations, and cancellation conditions vary by channel. |
 
 ## Repository Structure
 
