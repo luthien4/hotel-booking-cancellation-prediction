@@ -5,10 +5,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from sklearn.metrics import (
-    ConfusionMatrixDisplay,
-    RocCurveDisplay,
     classification_report,
     confusion_matrix,
+    roc_curve,
     roc_auc_score,
 )
 from sklearn.model_selection import train_test_split
@@ -22,6 +21,17 @@ FIGURES_DIR = PROJECT_ROOT / "reports" / "figures"
 
 def main():
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+    sns.set_style("darkgrid")
+    plt.rcParams.update(
+        {
+            "figure.facecolor": "#fcfbeb",
+            "axes.facecolor": "#fcfbeb",
+            "savefig.facecolor": "#fcfbeb",
+            "axes.edgecolor": "#fcfbeb",
+            "grid.color": "#ffffff",
+            "font.size": 10,
+        }
+    )
 
     df_train = pd.read_csv(DATA_DIR / "train_final.csv")
 
@@ -61,20 +71,36 @@ def main():
     print(classification_report(y_test, y_pred, target_names=["Not Canceled", "Canceled"]))
     print("AUC:", roc_auc_score(y_test, y_score))
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    fig, axes = plt.subplots(
+        ncols=2,
+        figsize=(16, 5),
+        gridspec_kw={"width_ratios": [1, 1.15]},
+    )
 
     cm = confusion_matrix(y_test, y_pred)
-    ConfusionMatrixDisplay(
-        confusion_matrix=cm,
-        display_labels=["Not Canceled", "Canceled"],
-    ).plot(ax=axes[0], cmap="Blues", colorbar=False)
+    sns.heatmap(
+        cm,
+        annot=True,
+        fmt="d",
+        cmap="Blues",
+        xticklabels=["Not_Canceled", "Canceled"],
+        yticklabels=["Not_Canceled", "Canceled"],
+        ax=axes[0],
+    )
     axes[0].set_title("Confusion Matrix")
+    axes[0].set_xlabel("Predicted Cancellations")
+    axes[0].set_ylabel("True Cancellations")
 
-    RocCurveDisplay.from_predictions(y_test, y_score, ax=axes[1])
-    axes[1].plot([0, 1], [0, 1], linestyle="--", color="gray")
-    axes[1].set_title("ROC Curve")
+    fpr, tpr, _ = roc_curve(y_test, y_score, drop_intermediate=False)
+    axes[1].plot([0, 1], [0, 1], linestyle="--", color="#4f79c7", label="random model")
+    axes[1].plot([0, 0], [1, 0], linestyle="--", color="#b5b5b5", label="ideal model")
+    axes[1].plot([1, 1], linestyle="--", color="#b5b5b5")
+    axes[1].plot(fpr, tpr, color="red", linewidth=2, label="model_Grid_refined")
+    axes[1].set_title("Receiver Operating Characteristic (ROC) Curve")
+    axes[1].set_xlabel("False Positive Rate")
+    axes[1].set_ylabel("Recall")
+    axes[1].legend(loc="lower right")
 
-    fig.suptitle("Random Forest Model Evaluation", fontsize=14, fontweight="bold")
     fig.tight_layout()
     fig.savefig(FIGURES_DIR / "model-evaluation.png", dpi=180, bbox_inches="tight")
     plt.close(fig)
@@ -85,19 +111,20 @@ def main():
         index=X_test_transformed.columns,
     ).sort_values(ascending=False)
 
-    top_importances = importances.head(10).sort_values()
+    top_importances = importances.head(10)
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(16, 2.2))
     sns.barplot(
         x=top_importances.values,
         y=top_importances.index,
         orient="h",
-        palette="GnBu_d",
+        color="#8fc7bd",
         ax=ax,
     )
-    ax.set_title("Top 10 Feature Importances", fontsize=14, fontweight="bold")
-    ax.set_xlabel("Importance")
+    ax.set_title("Features Importance - Random Forest Classifier")
+    ax.set_xlabel("")
     ax.set_ylabel("")
+    ax.tick_params(axis="x", labelbottom=False)
     fig.tight_layout()
     fig.savefig(FIGURES_DIR / "feature-importance.png", dpi=180, bbox_inches="tight")
     plt.close(fig)
