@@ -51,12 +51,22 @@ Final Random Forest test performance:
 |---|---:|
 | Accuracy | 0.84 |
 | Weighted F1-score | 0.83 |
-| AUC score | 0.774 |
+| ROC-AUC score | 0.87 |
 | Canceled precision | 0.81 |
 | Canceled recall | 0.61 |
 | Canceled F1-score | 0.70 |
 
 The model is relatively precise when it flags a booking as likely to be canceled, but it still misses some actual cancellations. This trade-off matters in a hotel business context because false positives and false negatives can have different operational and revenue-management costs.
+
+## Model Evaluation Visuals
+
+### Confusion Matrix and ROC Curve
+
+![Random Forest model evaluation](reports/figures/model-evaluation.png)
+
+### Feature Importance
+
+![Top 10 feature importances](reports/figures/feature-importance.png)
 
 ## Key Predictors
 
@@ -111,7 +121,6 @@ notebooks/01_hotel_booking_cancellation_analysis.ipynb
 
 Portfolio-ready draft. Next improvements:
 
-- add exported figures for confusion matrix, ROC curve, and feature importance,
 - simplify the notebook for smoother reading,
 - create a short portfolio website page,
 - optionally package the preprocessing and model inference workflow as a Python script.
