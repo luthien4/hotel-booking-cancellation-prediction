@@ -19,6 +19,22 @@ MODELS_DIR = PROJECT_ROOT / "models"
 FIGURES_DIR = PROJECT_ROOT / "reports" / "figures"
 
 
+def format_feature_name(feature_name):
+    readable_names = {
+        "deposit_type_Non Refund": "Deposit type: Non Refund",
+        "total_of_special_requests": "Total special requests",
+        "lead_time": "Lead time",
+        "previous_cancellations": "Previous cancellations",
+        "required_car_parking_spaces": "Required parking spaces",
+        "market_segment_Online TA": "Market segment: Online TA",
+        "booking_changes": "Booking changes",
+        "customer_type_Transient": "Customer type: Transient",
+        "market_segment_Groups": "Market segment: Groups",
+        "distribution_channel_TA/TO": "Distribution channel: TA/TO",
+    }
+    return readable_names.get(feature_name, feature_name.replace("_", " ").title())
+
+
 def main():
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
     sns.set_style("darkgrid")
@@ -111,20 +127,40 @@ def main():
         index=X_test_transformed.columns,
     ).sort_values(ascending=False)
 
-    top_importances = importances.head(10)
+    top_importances = importances.head(10).rename(index=format_feature_name)
 
-    fig, ax = plt.subplots(figsize=(16, 2.2))
+    fig, ax = plt.subplots(figsize=(12, 6))
     sns.barplot(
         x=top_importances.values,
         y=top_importances.index,
         orient="h",
-        color="#8fc7bd",
+        color="#77b8ad",
         ax=ax,
     )
-    ax.set_title("Features Importance - Random Forest Classifier")
-    ax.set_xlabel("")
+    max_importance = top_importances.max()
+    ax.set_title(
+        "Top 10 Feature Importances - Random Forest Classifier",
+        fontsize=15,
+        pad=16,
+    )
+    ax.set_xlabel("Relative importance")
     ax.set_ylabel("")
-    ax.tick_params(axis="x", labelbottom=False)
+    ax.set_xlim(0, max_importance * 1.16)
+    ax.tick_params(axis="y", labelsize=11)
+    ax.tick_params(axis="x", labelsize=10)
+    ax.grid(axis="x", color="#ffffff", linewidth=1.2)
+    ax.grid(axis="y", visible=False)
+    ax.spines[["top", "right", "left"]].set_visible(False)
+
+    for container in ax.containers:
+        ax.bar_label(
+            container,
+            labels=[f"{value:.3f}" for value in top_importances.values],
+            padding=5,
+            fontsize=10,
+            color="#333333",
+        )
+
     fig.tight_layout()
     fig.savefig(FIGURES_DIR / "feature-importance.png", dpi=180, bbox_inches="tight")
     plt.close(fig)
