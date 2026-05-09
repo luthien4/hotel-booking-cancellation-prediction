@@ -84,40 +84,81 @@ def main():
     y_pred = model.predict(X_test_transformed)
     y_score = model.predict_proba(X_test_transformed)[:, 1]
 
+    roc_auc = roc_auc_score(y_test, y_score)
+
     print(classification_report(y_test, y_pred, target_names=["Not Canceled", "Canceled"]))
-    print("AUC:", roc_auc_score(y_test, y_score))
+    print("AUC:", roc_auc)
 
     fig, axes = plt.subplots(
         ncols=2,
-        figsize=(16, 5),
-        gridspec_kw={"width_ratios": [1, 1.15]},
+        figsize=(14, 6),
+        gridspec_kw={"width_ratios": [1, 1.08], "wspace": 0.25},
+    )
+    fig.suptitle(
+        "Random Forest Model Evaluation",
+        fontsize=17,
+        fontweight="bold",
+        y=1.02,
     )
 
     cm = confusion_matrix(y_test, y_pred)
+    cm_percent = cm / cm.sum(axis=1, keepdims=True)
+    cm_labels = [
+        [f"{count:,}\n{percent:.1%}" for count, percent in zip(row, percent_row)]
+        for row, percent_row in zip(cm, cm_percent)
+    ]
     sns.heatmap(
         cm,
-        annot=True,
-        fmt="d",
+        annot=cm_labels,
+        fmt="",
         cmap="Blues",
-        xticklabels=["Not_Canceled", "Canceled"],
-        yticklabels=["Not_Canceled", "Canceled"],
+        linewidths=1.2,
+        linecolor="#fcfbeb",
+        cbar_kws={"label": "Number of bookings"},
+        xticklabels=["Not canceled", "Canceled"],
+        yticklabels=["Not canceled", "Canceled"],
         ax=axes[0],
+        annot_kws={"fontsize": 12},
     )
-    axes[0].set_title("Confusion Matrix")
-    axes[0].set_xlabel("Predicted Cancellations")
-    axes[0].set_ylabel("True Cancellations")
+    axes[0].set_title("Confusion Matrix", fontsize=14, pad=14)
+    axes[0].set_xlabel("Predicted booking status")
+    axes[0].set_ylabel("Actual booking status")
+    axes[0].tick_params(axis="both", labelsize=10)
 
     fpr, tpr, _ = roc_curve(y_test, y_score, drop_intermediate=False)
-    axes[1].plot([0, 1], [0, 1], linestyle="--", color="#4f79c7", label="random model")
-    axes[1].plot([0, 0], [1, 0], linestyle="--", color="#b5b5b5", label="ideal model")
-    axes[1].plot([1, 1], linestyle="--", color="#b5b5b5")
-    axes[1].plot(fpr, tpr, color="red", linewidth=2, label="model_Grid_refined")
-    axes[1].set_title("Receiver Operating Characteristic (ROC) Curve")
+    axes[1].plot(
+        [0, 1],
+        [0, 1],
+        linestyle="--",
+        color="#6f88c9",
+        linewidth=1.8,
+        label="Random classifier",
+    )
+    axes[1].plot(
+        [0, 0, 1],
+        [0, 1, 1],
+        linestyle="--",
+        color="#b5b5b5",
+        linewidth=1.8,
+        label="Ideal classifier",
+    )
+    axes[1].plot(
+        fpr,
+        tpr,
+        color="#c0392b",
+        linewidth=2.6,
+        label=f"Random Forest (AUC = {roc_auc:.2f})",
+    )
+    axes[1].set_title("ROC Curve", fontsize=14, pad=14)
     axes[1].set_xlabel("False Positive Rate")
-    axes[1].set_ylabel("Recall")
-    axes[1].legend(loc="lower right")
+    axes[1].set_ylabel("True Positive Rate / Recall")
+    axes[1].set_xlim(-0.02, 1.02)
+    axes[1].set_ylim(-0.02, 1.04)
+    axes[1].grid(color="#ffffff", linewidth=1.2)
+    axes[1].legend(loc="lower right", frameon=True, fontsize=10)
+    axes[1].spines[["top", "right"]].set_visible(False)
 
-    fig.tight_layout()
+    fig.subplots_adjust(top=0.82, wspace=0.28)
     fig.savefig(FIGURES_DIR / "model-evaluation.png", dpi=180, bbox_inches="tight")
     plt.close(fig)
 
