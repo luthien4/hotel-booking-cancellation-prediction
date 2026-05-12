@@ -24,7 +24,13 @@ def format_feature_name(feature_name):
         "deposit_type_Non Refund": "Deposit type: Non Refund",
         "total_of_special_requests": "Total special requests",
         "lead_time": "Lead time",
+        "adr": "Average daily rate (ADR)",
+        "arrival_date_day_of_month": "Arrival day of month",
+        "arrival_date_week_number": "Arrival week number",
+        "stays_in_week_nights": "Week nights",
+        "arrival_date_month": "Arrival month",
         "previous_cancellations": "Previous cancellations",
+        "stays_in_weekend_nights": "Weekend nights",
         "required_car_parking_spaces": "Required parking spaces",
         "market_segment_Online TA": "Market segment: Online TA",
         "booking_changes": "Booking changes",
@@ -67,6 +73,7 @@ def main():
         y,
         test_size=0.3,
         random_state=42,
+        stratify=y,
     )
 
     transformer = joblib.load(MODELS_DIR / "preprocessing_transformer.pkl")
@@ -163,6 +170,9 @@ def main():
     plt.close(fig)
 
     best_estimator = getattr(model, "best_estimator_", model)
+    if hasattr(best_estimator, "named_steps"):
+        best_estimator = best_estimator.named_steps["rf"]
+
     importances = pd.Series(
         best_estimator.feature_importances_,
         index=X_test_transformed.columns,

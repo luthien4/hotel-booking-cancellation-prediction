@@ -39,24 +39,24 @@ The project includes:
 - preprocessing with scaling and categorical encoding,
 - SMOTE resampling for class imbalance,
 - baseline model comparison,
-- Random Forest model tuning,
+- Random Forest model tuning with SMOTE inside the cross-validation pipeline,
 - classification report and ROC-AUC evaluation,
 - feature importance interpretation.
 
 ## Final Model Performance
 
-Final Random Forest test performance:
+Final tuned Random Forest pipeline test performance:
 
 | Metric | Value |
 |---|---:|
-| Accuracy | 0.84 |
-| Weighted F1-score | 0.83 |
-| ROC-AUC score | 0.87 |
-| Canceled precision | 0.81 |
-| Canceled recall | 0.61 |
-| Canceled F1-score | 0.70 |
+| Accuracy | 0.85 |
+| Weighted F1-score | 0.85 |
+| ROC-AUC score | 0.90 |
+| Canceled precision | 0.78 |
+| Canceled recall | 0.71 |
+| Canceled F1-score | 0.74 |
 
-The model is relatively precise when it flags a booking as likely to be canceled, but it still misses some actual cancellations. This trade-off matters in a hotel business context because false positives and false negatives can have different operational and revenue-management costs.
+The model provides a useful balance between precision and recall for the cancellation class. When it predicts a cancellation, it is correct about 78% of the time, and it identifies about 71% of actual cancellations. This trade-off matters in a hotel business context because false positives and false negatives can have different operational and revenue-management costs.
 
 ## Model Evaluation Visuals
 
@@ -70,20 +70,20 @@ The model is relatively precise when it flags a booking as likely to be canceled
 
 ## Key Predictors
 
-The feature-importance results are also consistent with business intuition: cancellation behavior is shaped by commitment signals, booking timing, customer history, and sales-channel patterns.
+The feature-importance results are consistent with the exploratory analysis: cancellation behavior is shaped by booking timing, deposit policy, price level, customer engagement signals, calendar effects, and past behavior.
 
 | Top driver | Business interpretation |
 |---|---|
-| Deposit type: Non Refund | Deposit policy is strongly linked to cancellation behavior because non-refundable bookings usually represent a stronger financial commitment. |
-| Total special requests | Guests with special requests may show stronger booking intent because they are already planning specific details of the stay. |
 | Lead time | Bookings made far in advance tend to carry different cancellation risk because plans can change before the stay date. |
+| Deposit type: Non Refund | Deposit policy is strongly linked to cancellation behavior in this dataset. |
+| Average daily rate (ADR) | Price level may contain cancellation-risk signal and can also reflect seasonality, hotel type, room type, demand level, or customer segment. |
+| Total special requests | Guests with special requests may show stronger booking intent because they are already planning specific details of the stay. |
+| Arrival day of month | Calendar timing may capture demand, seasonality, or operational patterns related to cancellation behavior. |
+| Arrival week number | Week-of-year effects may reflect seasonality and travel-demand patterns. |
+| Week nights | Stay duration during the week can reflect trip purpose and booking context. |
+| Arrival month | Month-level seasonality can influence booking and cancellation behavior. |
 | Previous cancellations | Past customer behavior is predictive because guests with prior cancellations may be more likely to cancel again. |
-| Required parking spaces | Parking requests can signal stronger commitment or a specific travel context, especially for guests arriving by car. |
-| Market segment: Online TA | Online travel agency bookings may follow different cancellation patterns because customers can compare and change options more easily. |
 | Booking changes | Modified bookings may indicate uncertainty, but they can also show active planning, making this a useful behavioral signal. |
-| Customer type: Transient | Individual or short-term bookings behave differently from group, contract, or repeat customer bookings. |
-| Market segment: Groups | Group bookings have different cancellation dynamics because they often depend on coordinated plans and group-level decisions. |
-| Distribution channel: TA/TO | Travel agency and tour operator channels can behave differently because booking policies, customer expectations, and cancellation conditions vary by channel. |
 
 ## Repository Structure
 
@@ -99,6 +99,10 @@ hotel-booking-cancellation-prediction/
     01_hotel_booking_cancellation_analysis.ipynb
   reports/
     dataset_dictionary.md
+    generate_figures.py
+    figures/
+      model-evaluation.png
+      feature-importance.png
   README.md
   requirements.txt
 ```
@@ -120,9 +124,8 @@ notebooks/01_hotel_booking_cancellation_analysis.ipynb
 
 ## Current Status
 
-Portfolio-ready draft. Next improvements:
+Portfolio-ready version. Possible next improvements:
 
-- simplify the notebook for smoother reading,
 - create a short portfolio website page,
 - optionally package the preprocessing and model inference workflow as a Python script.
 
