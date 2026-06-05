@@ -1,6 +1,8 @@
 # Hotel Booking Cancellation Prediction
 
-Machine learning classification project for predicting whether a hotel booking is likely to be canceled.
+Machine learning classification project for predicting hotel booking cancellation risk from booking and customer behavior data.
+
+The project builds a realistic modeling workflow with leakage-aware feature selection, preprocessing pipelines, class-imbalance handling, model comparison, and interpretation of the main cancellation drivers.
 
 This project is part of my Data Analytics and Data Science portfolio. It focuses on framing a practical business problem, cleaning and preparing hotel booking data, evaluating classification models, and interpreting the drivers of cancellation risk.
 
